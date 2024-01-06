@@ -1,4 +1,5 @@
 #include "Inputs.h"
+#include <iostream>
 
 // Get or Set methods
 vec3 Inputs::GetMovement() { return movement; }

@@ -1,12 +1,17 @@
 #include "Camera.h"
 
-void Camera::CalculateProjection(GLuint shaderProgram) {
+void Camera::CalculateProjection(Shader shaderProgram) {
 	//Transformations
 	mat4 view = lookAt(position, position + forward, up);
 	mat4 mvp = projection * view * model;
-	int mvpLoc = glGetUniformLocation(shaderProgram, "mvpIn");
+	shaderProgram.setMat4("mvpIn", mvp);
 
-	glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, value_ptr(mvp));
+	//glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, value_ptr(mvp));
+}
+
+void Camera::RotateModel(vec3 rotationAxis, float rotationAmount, Shader shaderProgram) {
+	model = rotate(model, rotationAmount, rotationAxis);
+	CalculateProjection(shaderProgram);
 }
 
 void Camera::MouseCallback(GLFWwindow* window, double xpos, double ypos) {
@@ -64,13 +69,36 @@ Camera::Camera(int windowWidth, int windowHeight, float FOV) {
 	model = mat4(1.0f);
 	//Scaling to zoom in
 	model = scale(model, vec3(2.0f, 2.0f, 2.0f));
-	//Rotation to look down
-	model = rotate(model, radians(0.0f), vec3(1.0f, 0.0f, 0.0f));
-	//Movement to position further back
-	model = translate(model, vec3(0.0f, -2.0f, -1.5f));
 
 	//Projection matrix
 	projection = perspective(radians(FOV), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
+}
+
+// Restore the model back to original scaling
+void Camera::ResetModel(Shader shaderProgram) {
+	// Create a new model and do MVP to it
+	model = mat4(1.0f);
+	CalculateProjection(shaderProgram);
+}
+
+void Camera::MoveModel(vec3 _translation, Shader shaderProgram) {
+	model = translate(model, _translation);
+	CalculateProjection(shaderProgram);
+}
+
+// Simple scale the entire model
+void Camera::Scale(vec3 _scale, Shader shaderProgram) {
+	// Scale the current model scale
+	model = scale(model, _scale);
+	CalculateProjection(shaderProgram);
+}
+
+// Set the scale of the model to a specific scale
+void Camera::SetScale(vec3 _scale, Shader shaderProgram) {
+	// Reset the scale of the model before setting to the desired value
+	ResetModel(shaderProgram);
+	model = scale(model, _scale);
+	CalculateProjection(shaderProgram);
 }
 
 Camera::Camera() {}

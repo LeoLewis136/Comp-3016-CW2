@@ -1,10 +1,13 @@
 #pragma once
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include "glm/ext/vector_float3.hpp"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+
+#include "learnopengl/shader_m.h"
 
 using namespace glm;
 
@@ -24,7 +27,12 @@ public:
 	Camera();
 	Camera(int windowWidth, int windowHeight, float FOV);
 
-	void CalculateProjection(GLuint shaderProgram);
+	void RotateModel(vec3 _rotationAxis, float rotation, Shader shaderProgram);
+	void MoveModel(vec3 _translation, Shader shaderProgram);
+	void ResetModel(Shader shaderProgram);
+	void Scale(vec3 _scale, Shader shaderProgram);
+	void SetScale(vec3 _scale, Shader shaderProgram);
+	void CalculateProjection(Shader shaderProgram);
 	void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 private:
 	mat4 projection;
