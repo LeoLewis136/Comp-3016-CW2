@@ -11,12 +11,14 @@
 
 class LightSource {
 public:
-	LightSource(Camera& _mainScene, const string fileLocation, vec3 position, vec3 rotation, vec3 scale);
-	void Draw(Shader &shaderProgram);
-private:
 	vec3 position;
 	vec3 rotation;
 	vec3 scale;
+
+	LightSource(Camera& _mainScene, const string fileLocation, vec3 position, vec3 rotation, vec3 scale);
+	void Draw(Shader &shaderProgram);
+private:
+	
 
 	Model* myModel = nullptr;
 	Camera& mainScene;

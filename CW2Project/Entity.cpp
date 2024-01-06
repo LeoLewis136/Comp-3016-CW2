@@ -47,6 +47,8 @@ void Entity::Draw(Shader& shaderProgram) {
 	// Scaling the object to the correct scale
 	mainScene.Scale(scale, shaderProgram);
 
+	shaderProgram.setMat4("modelIn", mainScene.model);
+
 	if (myModel != nullptr) {
 		// Draw the model at this setup position, scale and rotation
 		myModel->Draw(shaderProgram);

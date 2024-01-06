@@ -13,6 +13,8 @@ using namespace glm;
 
 class Camera {
 public:
+	mat4 model;
+
 	vec3 position = vec3(0.0f, 0.0f, 0.0f); // The "Position" of the camera
 	vec3 forward = vec3(0.0f, 0.0f, -1.0f); // Where the camera is facing
 	vec3 up = vec3(0.0f, 1.0f, 0.0f); // The up direction of the camera
@@ -36,5 +38,5 @@ public:
 	void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 private:
 	mat4 projection;
-	mat4 model;
+	
 };

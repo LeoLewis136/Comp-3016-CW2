@@ -16,6 +16,7 @@
 
 #include "Inputs.h"
 #include "Entity.h"
+#include "LightSource.h"
 
 //LEARNOPENGL
 //#include <learnopengl/shader_m.h>
@@ -36,7 +37,9 @@ Shader* lightShaders = nullptr;
 Entity* rock = nullptr;
 Entity* cactus = nullptr;
 Entity* cactus2 = nullptr;
+Entity* sphere = nullptr;
 Entity* mainTerrain = nullptr;
+LightSource* defaultLight = nullptr;
 
 // Rendering variables
 GLuint shaderProgram = NULL;
@@ -95,12 +98,18 @@ void MainLoop() {
 
 		// Draw all stardard objects switching to the correct shader first
 		shaders->use();
+		shaders->setVec3("lightColour", vec3(1.0f, 1.0f, 1.0f));
+		shaders->setVec3("lightPos", defaultLight->position);
+
 		rock->Draw(*shaders);
 		cactus->Draw(*shaders);
 		cactus2->Draw(*shaders);
+
+		sphere->Draw(*shaders);
 		mainTerrain->Draw(*shaders);
 
 		lightShaders->use();
+		defaultLight->Draw(*shaders);
 
 		// Refresh
 		glfwSwapBuffers(window);
@@ -176,10 +185,12 @@ bool Setup(int width, int height, const char* windowName) {
 	myCamera = Camera(width, height, 45.0f);
 	myInputs = Inputs();
 
-	
+	defaultLight = new LightSource(myCamera, "media/Sphere/sphere.obj", vec3(0, 10, 5), vec3(0), vec3(1));
+
 	rock = new Entity(myCamera, "media/rock/Rock07-Base.fbx", vec3(3, 0, 1), vec3(0.0f), vec3(0.05));
 	cactus = new Entity(myCamera, "media/cactus/cactus.3ds", vec3(3, 0, 4), vec3(0.0f, 90.0f, 0.0f), vec3(0.01));
 	cactus2 = new Entity(myCamera, "media/cactus/cactus.3ds", vec3(5, 0, 2), vec3(90.0f, 0.0f, 0.0f), vec3(0.01));
+	sphere = new Entity(myCamera, "media/Sphere/sphere.obj", vec3(5, 1, 2), vec3(0, 0, 0), vec3(1));
 	mainTerrain = new Entity(myCamera, 0.03, 0.01, 0.4, vec3(0), vec3(0), vec3(1));
 	
 
