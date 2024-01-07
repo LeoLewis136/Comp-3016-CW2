@@ -46,6 +46,7 @@ Entity* rock = nullptr;
 Entity* cactus = nullptr;
 Entity* cactus2 = nullptr;
 Entity* mainTerrain = nullptr;
+Entity* signature = nullptr;
 LightSource* defaultLight = nullptr;
 
 // When the UI is active
@@ -160,6 +161,7 @@ void MainLoop() {
 		rock->Draw(*shaders);
 		cactus->Draw(*shaders);
 		cactus2->Draw(*shaders);
+		signature->Draw(*shaders);
 
 		// Switch to the terrain shader
 		terrainShaders->use();
@@ -270,7 +272,8 @@ bool Setup(int width, int height, const char* windowName) {
 	rock = new Entity(myCamera, "media/rock/Rock07-Base.fbx", vec3(0.6, 0.2, 1), vec3(0.0f), vec3(0.02));
 	cactus = new Entity(myCamera, "media/cactus/cactus.3ds", vec3(0.85, 0, -2.15), vec3(-90.0f, 0.0f, 0.0f), vec3(0.01));
 	cactus2 = new Entity(myCamera, "media/cactus/cactus.3ds", vec3(-2.45, 0.0, 2.49), vec3(-90.0f, 0.0f, 0.0f), vec3(0.01));
-	
+	signature = new Entity(myCamera, "media/Signature/signature.obj", vec3(0.0, -2.0, 0.0), vec3(0.0f, 0.0f, 0.0f), vec3(1));
+
 	// ImGui Setup
 	IMGUI_CHECKVERSION(); 
 	ImGui::CreateContext();
