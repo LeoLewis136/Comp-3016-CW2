@@ -152,7 +152,8 @@ void MainLoop() {
 		glClearColor(0.74f, 0.96f, 0.99f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		 
+		// Animating signature object
+		signature->rotation.y = fmod(signature->rotation.y + (10 * deltaTime), 359.99);
 
 		// Switch to the standard shader and pass all required info
 		shaders->use();
