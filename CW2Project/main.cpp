@@ -23,11 +23,6 @@
 #include "Entity.h"
 #include "LightSource.h"
 
-
-
-//LEARNOPENGL
-//#include <learnopengl/shader_m.h>
-
 using namespace std;
 using namespace glm;
 
@@ -118,15 +113,19 @@ void GuiRender() {
 	ImGui::Text("Ground Settings"); // Settings to allow user to change ground properties
 	ImGui::DragFloat3("Ground position", value_ptr(mainTerrain->position), 0.01); // Edit ground position
 	ImGui::DragFloat3("Ground rotation", value_ptr(mainTerrain->rotation), 0.1, 0, 360.0); // Edit ground rotation
+	ImGui::DragFloat3("Ground Scale", value_ptr(mainTerrain->scale), 0.01); // Edit ground scale
 	ImGui::Text("Cactus Settings"); // Settings to allow user to change Cactus properties
-	ImGui::DragFloat3("Cactus position", value_ptr(cactus->position), 0.01); // Edit ground position
-	ImGui::DragFloat3("Cactus rotation", value_ptr(cactus->rotation), 0.1, 0, 360.0); // Edit ground rotation
+	ImGui::DragFloat3("Cactus position", value_ptr(cactus->position), 0.01); // Edit Cactus position
+	ImGui::DragFloat3("Cactus rotation", value_ptr(cactus->rotation), 0.1, 0, 360.0); // Edit Cactus rotation
+	ImGui::DragFloat3("Cactus Scale", value_ptr(mainTerrain->scale), 0.01); // Edit Cactus scale
 	ImGui::Text("Cactus2 Settings"); // Settings to allow user to change second Cactus properties
-	ImGui::DragFloat3("Cactus2 position", value_ptr(cactus2->position), 0.01); // Edit ground position
-	ImGui::DragFloat3("Cactus2 rotation", value_ptr(cactus2->rotation), 0.1, 0, 360.0); // Edit ground rotation
+	ImGui::DragFloat3("Cactus2 position", value_ptr(cactus2->position), 0.01); // Edit Cactus2 position
+	ImGui::DragFloat3("Cactus2 rotation", value_ptr(cactus2->rotation), 0.1, 0, 360.0); // Edit Cactus2 rotation
+	ImGui::DragFloat3("Cactus2 Scale", value_ptr(mainTerrain->scale), 0.01); // Edit Cactus2 scale
 	ImGui::Text("Rock Settings"); // Settings to allow user to change Rock settings
 	ImGui::DragFloat3("Rock position", value_ptr(rock->position), 0.01); // Edit ground position
 	ImGui::DragFloat3("Rock rotation", value_ptr(rock->rotation), 0.1, 0, 360.0); // Edit ground rotation
+	ImGui::DragFloat3("Rock Scale", value_ptr(mainTerrain->scale), 0.01);
 
 	// Button that closes UI and allows the game to recieve inputs
 	if (ImGui::Button("ExitUI")) {
@@ -145,6 +144,9 @@ void MainLoop() {
 
 		myInputs.CheckInputs(window, is_active); // Check which keys are pressed
 		MoveCamera(); // Move the camera based on the inputs collected above
+
+		// Refresh
+		glfwPollEvents();
 
 		// Clear the screen to a pale blue as the background
 		glClearColor(0.74f, 0.96f, 0.99f, 1.0f);
@@ -177,11 +179,6 @@ void MainLoop() {
 
 		// Draw all light sources
 		defaultLight->Draw(*lightShaders);
-
-		
-
-		// Refresh
-		glfwPollEvents();
 		
 		// ---- ImGui rendering ----
 		// Start Imgui for this frame
