@@ -12,7 +12,7 @@ void Camera::CalculateProjection(Shader& shaderProgram) {
 	//glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, value_ptr(mvp));
 }
 
-void Camera::RotateModel(vec3 rotationAxis, float rotationAmount, Shader shaderProgram) {
+void Camera::RotateModel(vec3 rotationAxis, float rotationAmount, Shader& shaderProgram) {
 	model = rotate(model, rotationAmount, rotationAxis);
 	CalculateProjection(shaderProgram);
 }
@@ -78,26 +78,26 @@ Camera::Camera(int windowWidth, int windowHeight, float FOV) {
 }
 
 // Restore the model back to original scaling
-void Camera::ResetModel(Shader shaderProgram) {
+void Camera::ResetModel(Shader& shaderProgram) {
 	// Create a new model and do MVP to it
 	model = mat4(1.0f);
 	CalculateProjection(shaderProgram);
 }
 
-void Camera::MoveModel(vec3 _translation, Shader shaderProgram) {
+void Camera::MoveModel(vec3 _translation, Shader& shaderProgram) {
 	model = translate(model, _translation);
 	CalculateProjection(shaderProgram);
 }
 
 // Simple scale the entire model
-void Camera::Scale(vec3 _scale, Shader shaderProgram) {
+void Camera::Scale(vec3 _scale, Shader& shaderProgram) {
 	// Scale the current model scale
 	model = scale(model, _scale);
 	CalculateProjection(shaderProgram);
 }
 
 // Set the scale of the model to a specific scale
-void Camera::SetScale(vec3 _scale, Shader shaderProgram) {
+void Camera::SetScale(vec3 _scale, Shader& shaderProgram) {
 	// Reset the scale of the model before setting to the desired value
 	ResetModel(shaderProgram);
 	model = scale(model, _scale);

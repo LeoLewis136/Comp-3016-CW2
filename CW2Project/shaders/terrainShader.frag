@@ -3,14 +3,11 @@
 out vec4 FragColor;
 
 //Texture coordinates from last stage
-in vec2 textureFrag;
 in vec3 colourFrag;
 in vec3 Normal;
 in vec3 FragPos;
 in vec3 viewPos;
 
-// Texture sampler
-uniform sampler2D texture_diffuse1;
 // Light properties
 uniform vec3 lightColour;
 uniform vec3 lightPos;
@@ -18,13 +15,10 @@ uniform vec3 lightPos;
 void main()
 {
     vec4 tempColour;
-    //Setting of colour coordinates to colour map
-    if (textureFrag != vec2(0.0f)){
-        tempColour = texture(texture_diffuse1, textureFrag);
-    }
-    else{
-        tempColour = vec4(colourFrag, 1.0f);
-    }
+
+    //Setting of colour values to the biome data
+    tempColour = vec4(colourFrag, 1.0f);
+
 
     // ---- Lighting Calculations ----
     // -- Diffuse -- 
@@ -40,7 +34,7 @@ void main()
 
 
     // -- Specular --
-    float specularStrength = 0.4;
+    float specularStrength = 0.01;
 
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
