@@ -210,6 +210,7 @@ void MainLoop() {
 	delete cactus2;
 	delete mainTerrain;
 	delete defaultLight;
+	delete signature;
 
 	// ImGUI cleanup
 	ImGui_ImplOpenGL3_Shutdown(); 
