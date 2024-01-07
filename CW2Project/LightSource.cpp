@@ -1,5 +1,6 @@
 #include "LightSource.h"
 
+// Create a new Light source
 LightSource::LightSource(Camera& _mainScene, const string fileLocation, vec3 _position, vec3 _rotation, vec3 _scale) : mainScene(_mainScene) {
 	myModel = new Model(fileLocation);
 
@@ -27,6 +28,8 @@ void LightSource::Draw(Shader& shaderProgram) {
 	}
 	// Scaling the object to the correct scale
 	mainScene.Scale(scale, shaderProgram);
+
+	mainScene.CalculateProjection(shaderProgram);
 
 	// Draw the model at this setup position, scale and rotation
 	myModel->Draw(shaderProgram);

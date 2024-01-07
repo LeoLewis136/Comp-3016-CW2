@@ -7,6 +7,7 @@ in vec2 textureFrag;
 in vec3 colourFrag;
 in vec3 Normal;
 in vec3 FragPos;
+in vec3 viewPos;
 
 uniform vec3 lightColour;
 
@@ -36,7 +37,17 @@ void main()
     float ambientStrength = 0.2;
     vec3 ambient = ambientStrength * lightColour;
 
-    
-    vec4 result = vec4((ambient + diffuse), 1.0) * tempColour;
+
+    // -- Specular --
+    float specularStrength = 0.4;
+
+    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);
+
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec3 specular = specularStrength * spec * lightColour; 
+
+    // Applying the colours
+    vec4 result = vec4((ambient + diffuse + specular), 1.0) * tempColour;
     FragColor = result;
 }

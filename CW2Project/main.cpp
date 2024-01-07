@@ -14,9 +14,16 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+// imgui
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 #include "Inputs.h"
 #include "Entity.h"
 #include "LightSource.h"
+
+
 
 //LEARNOPENGL
 //#include <learnopengl/shader_m.h>
@@ -41,36 +48,41 @@ Entity* sphere = nullptr;
 Entity* mainTerrain = nullptr;
 LightSource* defaultLight = nullptr;
 
-// Rendering variables
-GLuint shaderProgram = NULL;
-GLuint VAO, VBO, EBO = NULL;
-
-// *OLD* Temporarily used
-GLuint texture;
-mat4 quadTransform = mat4(1.0f); // ---- Temporary ---- transform of the currently rendered quad
+// ImGUI setup
+bool is_active = false;
 
 // Time management
 float deltaTime = 0.0f; // The deltatime of the last frame
 float lastFrame = 0.0f; // The time of the last frame
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos) {
-	myCamera.MouseCallback(window, xpos, ypos);
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	if (!is_active) {
+		myCamera.MouseCallback(window, xpos, ypos);
+	}
+
+	io.MousePos = ImVec2(static_cast<float>(xpos), static_cast<float>(ypos));
+	
 }
 
 // Function to manage the current camera movement
 void MoveCamera()
 {
-	vec3 currentMovement = myInputs.GetMovement();
-	//Extent to which to move in one instance
-	const float movementSpeed = 3.0f * deltaTime;
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-	cout << currentMovement.x << " " << currentMovement.y << " " << currentMovement.z << "\n";
+	if (!is_active) {
+		vec3 currentMovement = myInputs.GetMovement();
+		//Extent to which to move in one instance
+		const float movementSpeed = 3.0f * deltaTime;
 
-	//Moving based on inputs recieved
-	if (currentMovement.z != 0.0f) { myCamera.position += movementSpeed * (myCamera.forward * currentMovement.z); }
-	if (currentMovement.x != 0.0f) { myCamera.position += normalize(cross((myCamera.forward * currentMovement.x), myCamera.up)) * movementSpeed; }
-	if (currentMovement.y != 0.0f) { myCamera.position += movementSpeed * (myCamera.up * currentMovement.y); }
+		cout << currentMovement.x << " " << currentMovement.y << " " << currentMovement.z << "\n";
 
+		//Moving based on inputs recieved
+		if (currentMovement.z != 0.0f) { myCamera.position += movementSpeed * (myCamera.forward * currentMovement.z); }
+		if (currentMovement.x != 0.0f) { myCamera.position += normalize(cross((myCamera.forward * currentMovement.x), myCamera.up)) * movementSpeed; }
+		if (currentMovement.y != 0.0f) { myCamera.position += movementSpeed * (myCamera.up * currentMovement.y); }
+	}
 }
 
 // Function to calculate and return the last delta time
@@ -82,19 +94,38 @@ float GetDeltaTime() {
 	return delta;
 }
 
+void GuiRender() {
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	static vec4 position;
+	static int counter = 0;
+
+	ImGui::Begin("Edit"); // Create window and start rendering
+
+	ImGui::DragFloat3("Light Position", value_ptr(defaultLight->position), 0.01); // Edit light position 
+	ImGui::DragFloat3("Ground position", value_ptr(mainTerrain->position), 0.01); // Edit ground position
+	ImGui::DragFloat3("Ground rotation", value_ptr(mainTerrain->rotation), 0.1, 0, 360.0); // Edit ground rotation
+
+	if (ImGui::Button("ExitUI")) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		is_active = false;
+	}
+
+	ImGui::End();
+}
+
 // Main "GameLoop" function to run each stage of the gameloop in order
 void MainLoop() {
 	// Game loop
 	while (!glfwWindowShouldClose(window)) {
 		deltaTime = GetDeltaTime(); // Calculate deltaTime for this frame
 
-
-		myInputs.CheckInputs(window); // Check which keys are pressed
+		myInputs.CheckInputs(window, is_active); // Check which keys are pressed
 		MoveCamera(); // Move the camera based on the inputs collected above
-
 
 		glClearColor(0.25f, 0.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		 
 
 		// Draw all stardard objects switching to the correct shader first
 		shaders->use();
@@ -109,40 +140,33 @@ void MainLoop() {
 		mainTerrain->Draw(*shaders);
 
 		lightShaders->use();
-		defaultLight->Draw(*shaders);
+		defaultLight->Draw(*lightShaders);
+
+		
 
 		// Refresh
-		glfwSwapBuffers(window);
 		glfwPollEvents();
+		
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		GuiRender();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	
+		glfwSwapBuffers(window);
 	}
+
+	// ImGUI cleanup
+	ImGui_ImplOpenGL3_Shutdown(); 
+	ImGui_ImplGlfw_Shutdown(); 
+	ImGui::DestroyContext(); 
 
 	// GLFW cleanup 
 	glfwDestroyWindow(window);
 	glfwTerminate();
-}
-
-// Setting up 3D projection variables for later use
-void SetupProjection(int windowWidth, int windowHeight, float FOV) {
-	//Model matrix
-	mat4 model = mat4(1.0f);
-	//model = mat4(1.0f);
-	//Scaling to zoom in
-	model = scale(model, vec3(2.0f, 2.0f, 2.0f));
-	//Rotation to look down
-	model = rotate(model, radians(-45.0f), vec3(1.0f, 0.0f, 0.0f));
-	//Movement to position further back 
-	model = translate(model, vec3(0.0f, 1.f, -1.5f));
-
-	//View matrix
-	mat4 view = lookAt(vec3(0.0f, 0.0f, 3.0f), vec3(0.0f, 0.0f, 2.0f), vec3(0.0f, 1.0f, 0.0f));
-
-	//Projection matrix
-	mat4 projection = perspective(radians(FOV), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
-
-	// Model-view-projection matrix uniform for vertex shader
-	mat4 mvp = projection * view * model;
-	int mvpLoc = glGetUniformLocation(shaderProgram, "mvpIn");
-	glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, value_ptr(mvp));
 }
 
 // Setup function to set up required objects
@@ -170,7 +194,7 @@ bool Setup(int width, int height, const char* windowName) {
 	}
 
 	shaders = new Shader("shaders/vertexShader.vert", "shaders/fragmentShader.frag");
-	lightShaders = new Shader("shaders/vertexShader.vert", "shaders/lightShader.frag");
+	lightShaders = new Shader("shaders/lightShader.vert", "shaders/lightShader.frag");
 	//Loading of shaders
 	shaders->use();
 
@@ -185,58 +209,29 @@ bool Setup(int width, int height, const char* windowName) {
 	myCamera = Camera(width, height, 45.0f);
 	myInputs = Inputs();
 
-	defaultLight = new LightSource(myCamera, "media/Sphere/sphere.obj", vec3(0, 10, 5), vec3(0), vec3(1));
+	defaultLight = new LightSource(myCamera, "media/Sphere/sphere1.obj", vec3(5, 1, 5), vec3(0), vec3(0.1));
 
 	rock = new Entity(myCamera, "media/rock/Rock07-Base.fbx", vec3(3, 0, 1), vec3(0.0f), vec3(0.05));
 	cactus = new Entity(myCamera, "media/cactus/cactus.3ds", vec3(3, 0, 4), vec3(0.0f, 90.0f, 0.0f), vec3(0.01));
 	cactus2 = new Entity(myCamera, "media/cactus/cactus.3ds", vec3(5, 0, 2), vec3(90.0f, 0.0f, 0.0f), vec3(0.01));
-	sphere = new Entity(myCamera, "media/Sphere/sphere.obj", vec3(5, 1, 2), vec3(0, 0, 0), vec3(1));
+	sphere = new Entity(myCamera, "media/Sphere/sphere1.obj", vec3(5, 1, 2), vec3(0, 0, 0), vec3(1));
 	mainTerrain = new Entity(myCamera, 0.03, 0.01, 0.4, vec3(0), vec3(0), vec3(1));
+	
+	// ImGui Setup
+	IMGUI_CHECKVERSION(); 
+	ImGui::CreateContext();
+
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 460");
+	ImGui::StyleColorsDark();
+
 	
 
 	// Successful loading
 	return true;
-}
-
-// Function to set up required information to view a quad in 3D *OLD* -unused-
-void SetupQuad() {
-	float vertices[] = {
-		//Positions             //Textures
-		0.5f, 0.5f, 0.0f,       1.0f, 1.0f, //top right
-		0.5f, -0.5f, 0.0f,      1.0f, 0.0f, //bottom right
-		-0.5f, -0.5f, 0.0f,     0.0f, 0.0f, //bottom left
-		-0.5f, 0.5f, 0.0f,      0.0f, 1.0f  //top left
-	};
-
-	unsigned int indices[] = {
-		0, 1, 3, //first triangle
-		1, 2, 3 //second triangle
-	};
-
-	// Create Vertex Array Object, Vertex Buffer Object, and Element Buffer Object
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-
-	// Bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	//Allocation & indexing of vertex attribute memory for vertex shader
-	//Positions
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	//Textures
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	glBindVertexArray(0); // Unbind VAO
 }
 
 // Program entrypoint

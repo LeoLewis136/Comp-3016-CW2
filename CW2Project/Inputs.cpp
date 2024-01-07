@@ -4,10 +4,17 @@
 // Get or Set methods
 vec3 Inputs::GetMovement() { return movement; }
 
-void Inputs::CheckInputs(GLFWwindow* windowIn) {
+void Inputs::CheckInputs(GLFWwindow* windowIn, bool& gui_active) {
 	//Closes window on 'exit' key press
 	if (glfwGetKey(windowIn, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(windowIn, true);
+		
+	}
+
+	// Unlocks / locks the cursor on space_bar press
+	if (glfwGetKey(windowIn, GLFW_KEY_SPACE) == GLFW_PRESS && space_pressed == false) {
+		glfwSetInputMode(windowIn, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		gui_active = true;
 	}
 
 	movement = vec3(0.0f); // Reset movement to 0

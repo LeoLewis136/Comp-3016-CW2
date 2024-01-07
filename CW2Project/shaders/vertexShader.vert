@@ -11,11 +11,13 @@ layout (location = 3) in vec3 vertexNormal;
 //Model-View-Projection Matrix
 uniform mat4 mvpIn;
 uniform mat4 modelIn;
+uniform vec3 camPos;
 
 //Texture to send
 out vec2 textureFrag;
 out vec3 colourFrag;
 out vec3 Normal;
+out vec3 viewPos;
 out vec3 FragPos;
 
 void main()
@@ -27,5 +29,6 @@ void main()
     //Sending texture coordinates to next stage
     colourFrag = colourVertex;
     textureFrag = textureVertex;
+    viewPos = camPos;
     Normal = mat3(transpose(inverse(modelIn))) * vertexNormal;;
 }

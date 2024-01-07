@@ -1,13 +1,13 @@
 #include "Camera.h"
 
-void Camera::CalculateProjection(Shader shaderProgram) {
+void Camera::CalculateProjection(Shader& shaderProgram) {
 	
 
 	//Transformations
 	mat4 view = lookAt(position, position + forward, up);
 	mat4 mvp = projection * view * model;
 	shaderProgram.setMat4("mvpIn", mvp);
-	shaderProgram.setMat4("modelIn", model);
+	shaderProgram.setVec3("camPos", position);
 
 	//glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, value_ptr(mvp));
 }

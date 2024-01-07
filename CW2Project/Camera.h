@@ -34,7 +34,7 @@ public:
 	void ResetModel(Shader shaderProgram);
 	void Scale(vec3 _scale, Shader shaderProgram);
 	void SetScale(vec3 _scale, Shader shaderProgram);
-	void CalculateProjection(Shader shaderProgram);
+	void CalculateProjection(Shader& shaderProgram);
 	void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 private:
 	mat4 projection;

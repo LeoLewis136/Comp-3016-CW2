@@ -11,6 +11,7 @@
 
 #include "FastNoiseLite.h"
 
+// Class which holds terrain data
 class ProceduralTerrain {
 public:
 	ProceduralTerrain(float terrainFrequency, float biomeFrequency, float amplitude);
@@ -20,6 +21,7 @@ private:
 	FastNoiseLite terrainNoise;
 	FastNoiseLite biomeNoise;
 
+	// OpenGl arrays
 	unsigned int VAO, VBO, EBO;
 };
 

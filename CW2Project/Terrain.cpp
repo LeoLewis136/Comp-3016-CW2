@@ -1,28 +1,31 @@
 #include "Terrain.h"
 
-ProceduralTerrain::ProceduralTerrain(float terrainFrequency, float biomeFrequency, float amplitude) {
+ProceduralTerrain::ProceduralTerrain(float terrainFrequency, float biomeFrequency, float amplitude){
 	// ---- Terrain noise setup ----
+	// Perlin noise to create the terrain height variation
 	terrainNoise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
 	terrainNoise.SetFrequency(terrainFrequency);
 	terrainNoise.SetSeed(rand() & 100);
 
+	// Perlin noise to create biome colouration
 	biomeNoise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
 	biomeNoise.SetFrequency(biomeFrequency);
 	biomeNoise.SetSeed(rand() % 100);
 
+	// Setting the values of various parameters for the map
 	const int trianglesPerSquare = 2;
 	const int squaresRow = MAP_WIDTH - 1;
 	const int trianglesGrid = squaresRow * squaresRow * trianglesPerSquare;
 	
-
-
-	float drawingStartPosition = 1.0f;
+	// Start position for vertices
+	float drawingStartPosition = 4.0f;
 	float columnVerticesOffset = drawingStartPosition;
 	float rowVerticesOffset = drawingStartPosition;
 
 	int rowIndex = 0;
 
-	GLfloat terrainVertices[MAP_SIZE][6];
+	// Creating array to store all the created vertices
+	GLfloat terrainVertices[MAP_SIZE][9];
 
 	for (int i = 0; i < MAP_SIZE; i++)
 	{
@@ -109,9 +112,40 @@ ProceduralTerrain::ProceduralTerrain(float terrainFrequency, float biomeFrequenc
 
 			//Setting of height from 2D noise value at respective x & y coordinate
 			terrainVertices[i][1] = terrainNoise.GetNoise((float)x, (float)y) * amplitude;
+
 			i++;
 		}
 	}
+
+	// Calculating normals for each created vertex
+	for (int y = 0; y < MAP_WIDTH; y++) {
+		for (int x = 0; x < MAP_WIDTH; x++) {
+			// Calculate normals using cross-products of adjacent triangles
+			glm::vec3 normal(0.0f, 0.0f, 0.0f); 
+
+			// Calculate normal for the current vertex
+			if (x > 0 && y > 0 && x < MAP_WIDTH - 1 && y < MAP_WIDTH - 1) { 
+				int iCurrent = y * MAP_WIDTH + x; 
+
+				// Calculate normals for the surrounding triangles
+				glm::vec3 v1(terrainVertices[iCurrent - MAP_WIDTH][0], terrainVertices[iCurrent - MAP_WIDTH][1], terrainVertices[iCurrent - MAP_WIDTH][2]); 
+				glm::vec3 v2(terrainVertices[iCurrent - 1][0], terrainVertices[iCurrent - 1][1], terrainVertices[iCurrent - 1][2]); 
+				glm::vec3 v3(terrainVertices[iCurrent][0], terrainVertices[iCurrent][1], terrainVertices[iCurrent][2]); 
+
+				glm::vec3 edge1 = v2 - v1; 
+				glm::vec3 edge2 = v3 - v1; 
+
+				normal = glm::normalize(glm::cross(edge1, edge2)); 
+			}
+
+			// Set the normal vector for the current vertex
+			int i = y * MAP_WIDTH + x; 
+			terrainVertices[i][6] = normal.x; 
+			terrainVertices[i][7] = normal.y; 
+			terrainVertices[i][8] = normal.z; 
+		}
+	}
+
 
 	// Create Vertex Array Object, Vertex Buffer Object, and Element Buffer Object
 	glGenVertexArrays(1, &VAO);
@@ -129,30 +163,20 @@ ProceduralTerrain::ProceduralTerrain(float terrainFrequency, float biomeFrequenc
 
 	// Allocation & indexing of vertex attribute memory for vertex shader
 	// Positions
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	// Colours
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
 }
 
+// Draw function to draw all the triangles in this object
 void ProceduralTerrain::Draw(Shader &shaderProgram) {
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, MAP_SIZE * 32, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
-
-// Function to generate terrian vertices
-/*void GenerateTerrain() {
-	float frequency = 0.02f;
-	float amplitude = 0.6f;
-
-	// Vertices and Indicies setup
-	const int squaresRow = RENDER_DISTANCE - 1;
-	const int traianglesPerSquare = 2;
-	const int trianglesGrid = squaresRow * squaresRow * traianglesPerSquare;
-
-	
-}
-*/

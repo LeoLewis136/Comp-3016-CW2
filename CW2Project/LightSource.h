@@ -9,6 +9,7 @@
 // OpenGL
 #include "learnopengl/model.h"
 
+// Light source object
 class LightSource {
 public:
 	vec3 position;
