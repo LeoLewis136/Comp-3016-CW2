@@ -117,15 +117,15 @@ void GuiRender() {
 	ImGui::Text("Cactus Settings"); // Settings to allow user to change Cactus properties
 	ImGui::DragFloat3("Cactus position", value_ptr(cactus->position), 0.01); // Edit Cactus position
 	ImGui::DragFloat3("Cactus rotation", value_ptr(cactus->rotation), 0.1, 0, 360.0); // Edit Cactus rotation
-	ImGui::DragFloat3("Cactus Scale", value_ptr(mainTerrain->scale), 0.01); // Edit Cactus scale
+	ImGui::DragFloat3("Cactus Scale", value_ptr(cactus->scale), 0.01); // Edit Cactus scale
 	ImGui::Text("Cactus2 Settings"); // Settings to allow user to change second Cactus properties
 	ImGui::DragFloat3("Cactus2 position", value_ptr(cactus2->position), 0.01); // Edit Cactus2 position
 	ImGui::DragFloat3("Cactus2 rotation", value_ptr(cactus2->rotation), 0.1, 0, 360.0); // Edit Cactus2 rotation
-	ImGui::DragFloat3("Cactus2 Scale", value_ptr(mainTerrain->scale), 0.01); // Edit Cactus2 scale
+	ImGui::DragFloat3("Cactus2 Scale", value_ptr(cactus2->scale), 0.01); // Edit Cactus2 scale
 	ImGui::Text("Rock Settings"); // Settings to allow user to change Rock settings
 	ImGui::DragFloat3("Rock position", value_ptr(rock->position), 0.01); // Edit ground position
 	ImGui::DragFloat3("Rock rotation", value_ptr(rock->rotation), 0.1, 0, 360.0); // Edit ground rotation
-	ImGui::DragFloat3("Rock Scale", value_ptr(mainTerrain->scale), 0.01);
+	ImGui::DragFloat3("Rock Scale", value_ptr(rock->scale), 0.01);
 
 	// Button that closes UI and allows the game to recieve inputs
 	if (ImGui::Button("ExitUI")) {
